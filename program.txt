@@ -1,0 +1,111 @@
+# Program Kasir Hezkimart
+
+# data-data
+list_barang = [
+    {
+        "id": 1,
+        "nama": "susu",
+        "harga": 12000
+    },
+    {
+        "id": 2,
+        "nama": "pop mie",
+        "harga": 5500
+    },
+    {
+        "id": 3,
+        "nama": "piatos",
+        "harga": 10600
+    },
+    {
+        "id": 4,
+        "nama": "nivea",
+        "harga": 37900,
+    },
+    {
+        "id": 5,
+        "nama": "yoghurt",
+        "harga": 9000
+    },
+    {
+        "id": 6,
+        "nama": "croissant",
+        "harga": 6500
+    }
+]
+
+# fungsi-fungsi 
+FUNCTION tampilkan_pesanan("list_pesanan", "total_belanja")
+    PRINT "id nama_barang jumlah_barang harga_total"
+    FOR "barang" in "list_pesanan"
+        PRINT "barang.id" + " " + "barang.nama" + " " + "barang.jumlah" + " " + "barang.harga_total"
+END FUNCTION
+
+# Inisialisasi total belanja
+STORE "total_belanja" with 0
+STORE "list_pesanan" with list
+
+# scanning
+
+STORE "scanning" with true
+
+WHILE "scanning"
+    DO
+        # list_pesanan dan total_belanja ditampilkan kepada operator
+        tampilkan_pesanan("list_pesanan", "total_belanja")
+
+        # barcode barang discan dan barang ditambahkan kedalam list_pesanan
+        READ AND WRITE "id_barang" with number
+        STORE "barang" with "list_barang[id_barang - 1]"
+        STORE "barang.jumlah" with 1
+        STORE "total_belanja" with "total_belanja" plus "barang.harga"
+        APPEND "list_pesanan" with "barang"
+
+        # list_pesanan dan total_belanja ditampilkan kepada operator
+        tampilkan_pesanan("list_pesanan", "total_belanja")
+
+        # Operator menambahkan atau mengurangi barang?
+        READ AND WRITE "selected_id" with number 
+        READ AND WRITE "action" with character
+
+        STORE "selected_barang" with "list_barang[selected_id-1]"
+
+        IF "action" is "add"
+            SET "selected_barang.jumlah" with "selected_barang.jumlah" plus 1
+            STORE "total_belanja" with "total_belanja" plus "list_barang[selected_barang.id].harga"
+        ELSE IF "action" is "subtract"
+            SET "selected_barang.jumlah" with "selected_barang.jumlah" minus 1
+            STORE "total_belanja" with "total_belanja" minus "list_barang[selected_barang.id].harga"
+        ELSE
+            PASS
+        
+        # Operator menyelesaikan scan?
+        READ AND WRITE "selesai_scan" with boolean
+
+        IF "selesai_scan" is true
+            print "Yakin selesai scan barang? (Y/N) "
+            READ AND WRITE "selesai_scan" with boolean
+            IF "selesai_scan" is true
+                SET "scanning" with false 
+                break
+    END DO 
+
+# list_pesanan dan total_belanja ditampilkan kepada user dan operator
+tampilkan_pesanan("list_pesanan", "total_belanja")
+
+READ AND WRITE "total_bayar" as number
+
+# Program mengkalkulasi kembalian 
+STORE "total_kembalian" as "total_bayar" minus "total_harga"
+
+# program menampilkan total_kembalian kepada pelanggan
+PRINT f"Total kembalian anda adalah: Rp {total_kembalian}"
+
+# program menampilkan total_kembalian dan tombol selesai transaksi kepada operator
+PRINT f"Total kembalian pelanggan adalah: Rp {total_kembalian}"
+
+# program mencetak invoice transaksi
+PRINT invoice
+
+# Program menyimpan transaksi ke database
+SAVE transaction to database
